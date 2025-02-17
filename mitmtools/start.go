@@ -1,6 +1,8 @@
 package mitmtools
 
 import (
+	"errors"
+
 	"github.com/Leviathangk/go-glog/glog"
 	"github.com/Leviathangk/go-mitmtools/handler"
 	"github.com/lqqyt2423/go-mitmproxy/proxy"
@@ -51,10 +53,22 @@ func Start(opts *Config, handlers ...handler.Addon) (*proxy.Proxy, error) {
 	p.AddAddon(new(handler.RecalculateRule))
 
 	// 执行
-	var startErr error
+	startCh := make(chan string, 1)
 	go func(c *proxy.Proxy) {
-		startErr = p.Start()
+		startErr := p.Start()
+		if startError!=nil{
+			startCh <- startError.Error()
+		}else{
+			startCh<-"success"
+		}
 	}(p)
 
-	return p, startErr
+	select {
+	case startMsg:=<-startCh:
+		if startMsg=="success"{
+			return p,nil
+		}else{
+			return nil, errors.New(startMsg)
+		}
+	}
 }
