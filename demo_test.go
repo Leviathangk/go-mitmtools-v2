@@ -23,6 +23,7 @@ func TestDemo(t *testing.T) {
 		mitmtools.SetSslInsecure(true),
 		mitmtools.SetProxy(ProxyUrl),
 		mitmtools.SetShowLog(true),
+		mitmtools.SetBackend(true),
 		//mitmtools.SetCaRootPath("C:\\Users\\用户目录\\.mitmproxy"),	// windows 示例
 	)
 
@@ -30,6 +31,8 @@ func TestDemo(t *testing.T) {
 	config.AddHandler(&req.ShowReq{})
 
 	proxy, err := mitmtools.Start(config)
+	glog.DLogger.Debugln("程序已启动...")
+
 	if err != nil {
 		glog.DLogger.Fatalln(err)
 	}

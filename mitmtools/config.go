@@ -1,8 +1,9 @@
 package mitmtools
 
 import (
-	"github.com/Leviathangk/go-mitmtools/handler"
 	"strconv"
+
+	"github.com/Leviathangk/go-mitmtools/handler"
 )
 
 const (
@@ -20,6 +21,7 @@ type Config struct {
 	CaRootPath        string
 	Upstream          string
 	ShowLog           bool // 是否打印日志
+	Backend           bool // 是否后台运行
 	handlers          []handler.Addon
 }
 type SetFunc func(c *Config)

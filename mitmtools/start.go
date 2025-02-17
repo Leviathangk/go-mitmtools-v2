@@ -50,5 +50,11 @@ func Start(opts *Config, handlers ...handler.Addon) (*proxy.Proxy, error) {
 	// 添加响应体重新计算
 	p.AddAddon(new(handler.RecalculateRule))
 
-	return p, p.Start()
+	// 执行
+	var startErr error
+	go func(c *proxy.Proxy) {
+		startErr = p.Start()
+	}(p)
+
+	return p, startErr
 }

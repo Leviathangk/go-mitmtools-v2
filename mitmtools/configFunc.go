@@ -70,3 +70,10 @@ func SetCaRootPath(p string) SetFunc {
 		c.CaRootPath = p
 	}
 }
+
+// SetBackend 非阻塞式运行
+func SetBackend(backend bool) SetFunc {
+	return func(c *Config) {
+		c.Backend = backend
+	}
+}
