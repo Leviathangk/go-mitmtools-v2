@@ -30,8 +30,10 @@ func NewWorker(opts *Config) (*MitmWorker, error) {
 	// 修改配置
 	handler.ShowLog = opts.ShowLog
 	glog.DLogger.ShowCaller = false
-	opts.handlerIndex = 0
-	opts.handlers = make(map[int]handler.Addon)
+	if opts.Handler.Handlers == nil {
+		opts.Handler.HandlerIndex = 0
+		opts.Handler.Handlers = make(map[int]handler.Addon)
+	}
 	if opts.Addr == "" {
 		opts.Port = defaultPort
 		opts.Addr = ":" + strconv.Itoa(defaultPort)
@@ -48,15 +50,15 @@ func NewWorker(opts *Config) (*MitmWorker, error) {
 
 // AddHandler 添加配置
 func (m *MitmWorker) AddHandler(h handler.Addon) int {
-	index := m.Config.handlerIndex + 1
-	m.Config.handlers[index] = h
+	index := m.Config.Handler.HandlerIndex + 1
+	m.Config.Handler.Handlers[index] = h
 	return index
 }
 
 // RemoveHandler 移除配置
 func (m *MitmWorker) RemoveHandler(handlerIndex int) {
-	if _, ok := m.Config.handlers[handlerIndex]; ok {
-		delete(m.Config.handlers, handlerIndex)
+	if _, ok := m.Config.Handler.Handlers[handlerIndex]; ok {
+		delete(m.Config.Handler.Handlers, handlerIndex)
 	}
 }
 
@@ -69,7 +71,7 @@ func (m *MitmWorker) Start() error {
 	m.Proxy.AddAddon(new(handler.DecodeRule))
 
 	// 添加 handlers
-	for _, h := range m.Config.handlers {
+	for _, h := range m.Config.Handler.Handlers {
 		err := h.Check()
 		if err != nil {
 			return err

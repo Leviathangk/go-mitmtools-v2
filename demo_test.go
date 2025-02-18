@@ -25,7 +25,7 @@ func TestDemo(t *testing.T) {
 		mitmtools.SetSslInsecure(true),
 		mitmtools.SetProxy(ProxyUrl),
 		mitmtools.SetShowLog(true),
-		//mitmtools.SetBackend(true), // 后台运行
+		mitmtools.SetBackend(true), // 后台运行
 		//mitmtools.SetCaRootPath("C:\\Users\\用户目录\\.mitmproxy"),	// windows 示例
 	))
 	if err != nil {

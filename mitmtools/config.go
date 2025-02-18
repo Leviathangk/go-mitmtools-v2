@@ -11,6 +11,10 @@ const (
 	defaultStreamLargeBodies = 1024 * 1024 * 5
 )
 
+type Handler struct {
+	HandlerIndex int                   // 计数
+	Handlers     map[int]handler.Addon // 方便添加和移除
+}
 type Config struct {
 	Debug             int
 	Addr              string
@@ -19,10 +23,9 @@ type Config struct {
 	SslInsecure       bool  // 为 true 时不验证上游服务器的 SSL/TLS 证书
 	CaRootPath        string
 	Upstream          string
-	ShowLog           bool                  // 是否打印日志
-	Backend           bool                  // 是否后台运行
-	handlerIndex      int                   // 计数
-	handlers          map[int]handler.Addon // 方便添加和移除
+	ShowLog           bool    // 是否打印日志
+	Backend           bool    // 是否后台运行
+	Handler           Handler // 处理器
 }
 type SetFunc func(c *Config)
 
@@ -42,6 +45,9 @@ func NewConfig(opt ...SetFunc) *Config {
 	if config.StreamLargeBodies == 0 {
 		config.StreamLargeBodies = defaultStreamLargeBodies
 	}
+
+	config.Handler.HandlerIndex = 0
+	config.Handler.Handlers = make(map[int]handler.Addon)
 
 	return config
 }
