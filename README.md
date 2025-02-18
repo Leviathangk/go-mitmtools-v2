@@ -52,9 +52,9 @@ package main
 
 import (
 	"github.com/Leviathangk/go-glog/glog"
-	"github.com/Leviathangk/go-mitmtools/mitmtools"
-	"github.com/Leviathangk/go-mitmtools/mitmtools/handler/req"
-	"github.com/Leviathangk/go-mitmtools/mitmtools/handler/resp"
+	"github.com/Leviathangk/go-mitmtools-v2/mitmtools"
+	"github.com/Leviathangk/go-mitmtools-v2/mitmtools/handler/req"
+	"github.com/Leviathangk/go-mitmtools-v2/mitmtools/handler/resp"
 )
 
 const (
@@ -280,7 +280,7 @@ go test -v demo_test.go
 
 ```
 go mod init demo
-go get github.com/Leviathangk/go-mitmtools@latest
+go get github.com/Leviathangk/go-mitmtools-v2@latest
 ```
 
 ## 编写 main.go
@@ -290,8 +290,8 @@ package main
 
 import (
 	"github.com/Leviathangk/go-glog/glog"
-	"github.com/Leviathangk/go-mitmtools/handler/req"
-	"github.com/Leviathangk/go-mitmtools/mitmtools"
+	"github.com/Leviathangk/go-mitmtools-v2/handler/req"
+	"github.com/Leviathangk/go-mitmtools-v2/mitmtools"
 )
 
 const (
