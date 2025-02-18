@@ -51,16 +51,12 @@ func NewWorker(opts *Config) (*MitmWorker, error) {
 
 // AddHandler 添加配置
 func (m *MitmWorker) AddHandler(h handler.Addon) int {
-	index := m.Config.Handler.HandlerIndex + 1
-	m.Config.Handler.Handlers[index] = h
-	return index
+	return m.Config.Handler.AddHandler(h)
 }
 
 // RemoveHandler 移除配置
 func (m *MitmWorker) RemoveHandler(handlerIndex int) {
-	if _, ok := m.Config.Handler.Handlers[handlerIndex]; ok {
-		delete(m.Config.Handler.Handlers, handlerIndex)
-	}
+	m.Config.Handler.RemoveHandler(handlerIndex)
 }
 
 // Start 启动
