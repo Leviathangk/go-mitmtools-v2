@@ -32,6 +32,7 @@ func SetProxy(p string) SetFunc {
 // SetPort 设置端口
 func SetPort(p int) SetFunc {
 	return func(c *Config) {
+		c.Port = p
 		c.Addr = "127.0.0.1:" + strconv.Itoa(p)
 	}
 }

@@ -6,6 +6,7 @@ package main
 
 import (
 	"testing"
+	"time"
 
 	"github.com/Leviathangk/go-glog/glog"
 	"github.com/Leviathangk/go-mitmtools/handler/req"
@@ -23,7 +24,7 @@ func TestDemo(t *testing.T) {
 		mitmtools.SetSslInsecure(true),
 		mitmtools.SetProxy(ProxyUrl),
 		mitmtools.SetShowLog(true),
-		mitmtools.SetBackend(true),
+		mitmtools.SetBackend(true), // 后台运行
 		//mitmtools.SetCaRootPath("C:\\Users\\用户目录\\.mitmproxy"),	// windows 示例
 	)
 
@@ -38,4 +39,12 @@ func TestDemo(t *testing.T) {
 	}
 
 	glog.DLogger.Debugln(proxy.GetCertificate())
+
+	for {
+		time.Sleep(5 * time.Second)
+		glog.DLogger.Debugln("程序正在关闭...")
+		proxy.Close()
+		break
+	}
+	glog.DLogger.Debugln(PortIsAvailable(8866))
 }

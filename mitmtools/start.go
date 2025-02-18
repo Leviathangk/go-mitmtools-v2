@@ -1,11 +1,10 @@
 package mitmtools
 
 import (
-	"errors"
-
 	"github.com/Leviathangk/go-glog/glog"
 	"github.com/Leviathangk/go-mitmtools/handler"
 	"github.com/lqqyt2423/go-mitmproxy/proxy"
+	"time"
 )
 
 // Start 启动入口
@@ -53,22 +52,45 @@ func Start(opts *Config, handlers ...handler.Addon) (*proxy.Proxy, error) {
 	p.AddAddon(new(handler.RecalculateRule))
 
 	// 执行
-	startCh := make(chan string, 1)
+	if opts.Backend {
+		glog.DLogger.Debugln("程序正在后台运行！")
+		runStatus, runErr := waitStart(p, opts.Port) // 这里是非阻塞式运行
+		if runStatus {
+			return p, nil
+		} else {
+			return nil, runErr
+		}
+	} else {
+		err = p.Start() // 这里是阻塞式运行
+		if err != nil {
+			return nil, err
+		} else {
+			return p, nil
+		}
+	}
+}
+
+// waitStart 等待启动完成
+func waitStart(p *proxy.Proxy, port int) (bool, error) {
+	// 这里启动等待错误
+	startCh := make(chan error, 1)
 	go func(c *proxy.Proxy) {
 		startErr := p.Start()
-		if startError!=nil{
-			startCh <- startError.Error()
-		}else{
-			startCh<-"success"
-		}
+		startCh <- startErr
 	}(p)
 
-	select {
-	case startMsg:=<-startCh:
-		if startMsg=="success"{
-			return p,nil
-		}else{
-			return nil, errors.New(startMsg)
+	// 这里等待错误和端口占用
+	for {
+		select {
+		case errMsg := <-startCh:
+			return false, errMsg
+		case <-time.After(1 * time.Second):
+			glog.DLogger.Debugf("正在等待端口 %d\n", port)
+			s := PortIsAvailable(port)
+			glog.DLogger.Debugln(s)
+			if !PortIsAvailable(port) {
+				return true, nil
+			}
 		}
 	}
 }
