@@ -9,7 +9,7 @@ web 界面：http://localhost:9081/
 # 安装
 
 ```
-go get github.com/Leviathangk/go-mitmtools@latest
+go get github.com/Leviathangk/go-mitmtools-v2@latest
 ```
 
 # Handler
