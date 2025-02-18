@@ -3,7 +3,7 @@ package mitmtools
 import (
 	"strconv"
 
-	"github.com/Leviathangk/go-mitmtools/handler"
+	"github.com/Leviathangk/go-mitmtools-v2/handler"
 )
 
 const (
@@ -37,6 +37,7 @@ func NewConfig(opt ...SetFunc) *Config {
 
 	// 参数检查
 	if config.Addr == "" {
+		config.Port = defaultPort
 		config.Addr = ":" + strconv.Itoa(defaultPort)
 	}
 	if config.StreamLargeBodies == 0 {

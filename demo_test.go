@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/Leviathangk/go-glog/glog"
-	"github.com/Leviathangk/go-mitmtools/handler/req"
-	"github.com/Leviathangk/go-mitmtools/mitmtools"
+	"github.com/Leviathangk/go-mitmtools-v2/handler/req"
+	"github.com/Leviathangk/go-mitmtools-v2/mitmtools"
 )
 
 const (

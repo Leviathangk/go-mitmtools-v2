@@ -68,6 +68,7 @@ func main() {
 		mitmtools.SetSslInsecure(true),
 		mitmtools.SetProxy(proxyUrl),
 		mitmtools.SetShowLog(true),
+		//mitmtools.SetBackend(true), // 后台运行
 		//mitmtools.SetCaRootPath("C:\\Users\\用户目录\\.mitmproxy"),	// windows 示例
 	)
 

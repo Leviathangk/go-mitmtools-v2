@@ -1,4 +1,4 @@
-module github.com/Leviathangk/go-mitmtools
+module github.com/Leviathangk/go-mitmtools-v2
 
 go 1.23.2
 

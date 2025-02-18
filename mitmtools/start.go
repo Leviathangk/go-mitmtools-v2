@@ -2,7 +2,7 @@ package mitmtools
 
 import (
 	"github.com/Leviathangk/go-glog/glog"
-	"github.com/Leviathangk/go-mitmtools/handler"
+	"github.com/Leviathangk/go-mitmtools-v2/handler"
 	"github.com/lqqyt2423/go-mitmproxy/proxy"
 	"time"
 )

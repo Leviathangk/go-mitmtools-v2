@@ -1,7 +1,7 @@
 package mitmtools
 
 import (
-	"github.com/Leviathangk/go-mitmtools/handler"
+	"github.com/Leviathangk/go-mitmtools-v2/handler"
 	"strconv"
 	"strings"
 )

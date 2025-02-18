@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Leviathangk/go-mitmtools/handler"
+	"github.com/Leviathangk/go-mitmtools-v2/handler"
 
 	"github.com/Leviathangk/go-glog/glog"
 	"github.com/lqqyt2423/go-mitmproxy/proxy"
