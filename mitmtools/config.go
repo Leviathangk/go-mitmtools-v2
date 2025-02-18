@@ -23,9 +23,9 @@ type Config struct {
 	SslInsecure       bool  // 为 true 时不验证上游服务器的 SSL/TLS 证书
 	CaRootPath        string
 	Upstream          string
-	ShowLog           bool    // 是否打印日志
-	Backend           bool    // 是否后台运行
-	Handler           Handler // 处理器
+	ShowLog           bool     // 是否打印日志
+	Backend           bool     // 是否后台运行
+	Handler           *Handler // 处理器
 }
 type SetFunc func(c *Config)
 
@@ -45,7 +45,7 @@ func NewConfig(opt ...SetFunc) *Config {
 	if config.StreamLargeBodies == 0 {
 		config.StreamLargeBodies = defaultStreamLargeBodies
 	}
-
+	config.Handler = new(Handler)
 	config.Handler.HandlerIndex = 0
 	config.Handler.Handlers = make(map[int]handler.Addon)
 

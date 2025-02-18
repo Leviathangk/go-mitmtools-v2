@@ -30,7 +30,8 @@ func NewWorker(opts *Config) (*MitmWorker, error) {
 	// 修改配置
 	handler.ShowLog = opts.ShowLog
 	glog.DLogger.ShowCaller = false
-	if opts.Handler.Handlers == nil {
+	if opts.Handler == nil {
+		opts.Handler = new(Handler)
 		opts.Handler.HandlerIndex = 0
 		opts.Handler.Handlers = make(map[int]handler.Addon)
 	}
