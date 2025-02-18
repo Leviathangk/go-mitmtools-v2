@@ -63,14 +63,17 @@ const (
 )
 
 func main() {
-	config := mitmtools.NewConfig(
-		mitmtools.SetAddr("", port),
+	worker, err := mitmtools.NewWorker(mitmtools.NewConfig(
+		mitmtools.SetPort(Port),
 		mitmtools.SetSslInsecure(true),
-		mitmtools.SetProxy(proxyUrl),
+		mitmtools.SetProxy(ProxyUrl),
 		mitmtools.SetShowLog(true),
 		//mitmtools.SetBackend(true), // 后台运行
 		//mitmtools.SetCaRootPath("C:\\Users\\用户目录\\.mitmproxy"),	// windows 示例
-	)
+	))
+	if err != nil {
+	    glog.DLogger.Fatalln(err)
+    }
 
 	// 打印请求
 	config.AddHandler(&req.ShowReq{
@@ -189,7 +192,7 @@ func main() {
 		Cookie:  map[string]string{"x": "qiandu"},
 	})
 
-	glog.DLogger.Fatal(mitmtools.Start(config))
+	glog.DLogger.Fatalln(worker.Start())
 }
 ```
 
@@ -300,17 +303,22 @@ const (
 )
 
 func main() {
-	config := mitmtools.NewConfig(
+	worker, err := mitmtools.NewWorker(mitmtools.NewConfig(
 		mitmtools.SetPort(Port),
 		mitmtools.SetSslInsecure(true),
 		mitmtools.SetProxy(ProxyUrl),
 		mitmtools.SetShowLog(true),
-	)
+		//mitmtools.SetBackend(true), // 后台运行
+		//mitmtools.SetCaRootPath("C:\\Users\\用户目录\\.mitmproxy"),	// windows 示例
+	))
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	// 打印请求
-	config.AddHandler(&req.ShowReq{})
+	worker.AddHandler(&req.ShowReq{})
 
-	glog.DLogger.Fatalln(mitmtools.Start(config))
+	glog.DLogger.Fatalln(worker.Start())
 }
 ```
 

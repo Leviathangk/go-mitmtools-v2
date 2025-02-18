@@ -9,8 +9,6 @@ import (
 const (
 	defaultPort              = 8866
 	defaultStreamLargeBodies = 1024 * 1024 * 5
-	defaultSslInsecure       = true
-	defaultShowLog           = true
 )
 
 type Config struct {
@@ -18,12 +16,13 @@ type Config struct {
 	Addr              string
 	Port              int   // 记录端口，方便获取
 	StreamLargeBodies int64 // 当请求或响应体大于此字节时，转为 stream 模式
-	SslInsecure       bool
+	SslInsecure       bool  // 为 true 时不验证上游服务器的 SSL/TLS 证书
 	CaRootPath        string
 	Upstream          string
-	ShowLog           bool // 是否打印日志
-	Backend           bool // 是否后台运行
-	handlers          []handler.Addon
+	ShowLog           bool                  // 是否打印日志
+	Backend           bool                  // 是否后台运行
+	handlerIndex      int                   // 计数
+	handlers          map[int]handler.Addon // 方便添加和移除
 }
 type SetFunc func(c *Config)
 

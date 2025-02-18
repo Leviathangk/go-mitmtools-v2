@@ -1,22 +1,9 @@
 package mitmtools
 
 import (
-	"github.com/Leviathangk/go-mitmtools-v2/handler"
 	"strconv"
 	"strings"
 )
-
-// AddHandler 添加规则
-func (c *Config) AddHandler(h handler.Addon) {
-	c.handlers = append(c.handlers, h)
-}
-
-// AddHandler 添加规则
-func AddHandler(h handler.Addon) SetFunc {
-	return func(c *Config) {
-		c.handlers = append(c.handlers, h)
-	}
-}
 
 // SetProxy 设置代理
 func SetProxy(p string) SetFunc {
@@ -40,6 +27,7 @@ func SetPort(p int) SetFunc {
 // SetAddr 设置ip、端口
 func SetAddr(ip string, p int) SetFunc {
 	return func(c *Config) {
+		c.Port = p
 		c.Addr = ip + ":" + strconv.Itoa(p)
 	}
 }

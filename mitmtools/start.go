@@ -4,11 +4,17 @@ import (
 	"github.com/Leviathangk/go-glog/glog"
 	"github.com/Leviathangk/go-mitmtools-v2/handler"
 	"github.com/lqqyt2423/go-mitmproxy/proxy"
+	"strconv"
 	"time"
 )
 
-// Start 启动入口
-func Start(opts *Config, handlers ...handler.Addon) (*proxy.Proxy, error) {
+type MitmWorker struct {
+	Proxy  *proxy.Proxy
+	Config *Config
+}
+
+// NewWorker 创建一个处理器
+func NewWorker(opts *Config) (*MitmWorker, error) {
 	p, err := proxy.NewProxy(&proxy.Options{
 		Debug:             opts.Debug,
 		Addr:              opts.Addr,
@@ -24,50 +30,106 @@ func Start(opts *Config, handlers ...handler.Addon) (*proxy.Proxy, error) {
 	// 修改配置
 	handler.ShowLog = opts.ShowLog
 	glog.DLogger.ShowCaller = false
-
-	// 添加解析响应体
-	p.AddAddon(new(handler.DecodeRule))
-
-	// 添加规则
-	for _, h := range handlers {
-		err = h.Check()
-		if err != nil {
-			return nil, err
-		}
-
-		p.AddAddon(h)
+	opts.handlerIndex = 0
+	opts.handlers = make(map[int]handler.Addon)
+	if opts.Addr == "" {
+		opts.Port = defaultPort
+		opts.Addr = ":" + strconv.Itoa(defaultPort)
+	}
+	if opts.StreamLargeBodies == 0 {
+		opts.StreamLargeBodies = defaultStreamLargeBodies
 	}
 
-	// 添加规则
-	for _, h := range opts.handlers {
-		err = h.Check()
-		if err != nil {
-			return nil, err
-		}
+	return &MitmWorker{
+		Config: opts,
+		Proxy:  p,
+	}, nil
+}
 
-		p.AddAddon(h)
+// AddHandler 添加配置
+func (m *MitmWorker) AddHandler(h handler.Addon) int {
+	index := m.Config.handlerIndex + 1
+	m.Config.handlers[index] = h
+	return index
+}
+
+// RemoveHandler 移除配置
+func (m *MitmWorker) RemoveHandler(handlerIndex int) {
+	if _, ok := m.Config.handlers[handlerIndex]; ok {
+		delete(m.Config.handlers, handlerIndex)
+	}
+}
+
+// Start 启动
+func (m *MitmWorker) Start() error {
+	// 清空原始 handlers
+	m.Proxy.Addons = make([]proxy.Addon, 0)
+
+	// 添加解析响应体
+	m.Proxy.AddAddon(new(handler.DecodeRule))
+
+	// 添加 handlers
+	for _, h := range m.Config.handlers {
+		err := h.Check()
+		if err != nil {
+			return err
+		}
+		m.Proxy.AddAddon(h)
 	}
 
 	// 添加响应体重新计算
-	p.AddAddon(new(handler.RecalculateRule))
+	m.Proxy.AddAddon(new(handler.RecalculateRule))
 
-	// 执行
-	if opts.Backend {
-		glog.DLogger.Debugln("程序正在后台运行！")
-		runStatus, runErr := waitStart(p, opts.Port) // 这里是非阻塞式运行
+	glog.DLogger.Debugf("启动地址 %s\n", m.Config.Addr)
+
+	// 启动
+	if m.Config.Backend {
+		glog.DLogger.Debugln("正在后台运行...")
+		runStatus, runErr := waitStart(m.Proxy, m.Config.Port) // 这里是非阻塞式运行
 		if runStatus {
-			return p, nil
+			return nil
 		} else {
-			return nil, runErr
+			return runErr
 		}
 	} else {
-		err = p.Start() // 这里是阻塞式运行
+		err := m.Proxy.Start() // 这里是阻塞式运行
 		if err != nil {
-			return nil, err
+			return err
 		} else {
-			return p, nil
+			return nil
 		}
 	}
+}
+
+// Stop 停止
+func (m *MitmWorker) Stop() error {
+	err := m.Proxy.Close()
+	if err != nil {
+		return err
+	}
+	glog.DLogger.Debugln("关闭完成...")
+
+	return nil
+}
+
+// ReStart 重启
+func (m *MitmWorker) ReStart() error {
+	var err error
+
+	if !PortIsAvailable(m.Config.Port) {
+		err = m.Stop()
+		if err != nil {
+			return err
+		}
+	}
+
+	err = m.Start()
+	if err != nil {
+		return err
+	}
+	glog.DLogger.Debugln("重启完成...")
+
+	return nil
 }
 
 // waitStart 等待启动完成
@@ -85,10 +147,9 @@ func waitStart(p *proxy.Proxy, port int) (bool, error) {
 		case errMsg := <-startCh:
 			return false, errMsg
 		case <-time.After(1 * time.Second):
-			glog.DLogger.Debugf("正在等待端口 %d\n", port)
-			s := PortIsAvailable(port)
-			glog.DLogger.Debugln(s)
+			glog.DLogger.Debugf("正在等待端口启动 %d\n", port)
 			if !PortIsAvailable(port) {
+				glog.DLogger.Debugf("端口已启动 %d\n", port)
 				return true, nil
 			}
 		}

@@ -5,6 +5,7 @@
 package main
 
 import (
+	"log"
 	"testing"
 	"time"
 
@@ -19,32 +20,32 @@ const (
 )
 
 func TestDemo(t *testing.T) {
-	config := mitmtools.NewConfig(
+	worker, err := mitmtools.NewWorker(mitmtools.NewConfig(
 		mitmtools.SetPort(Port),
 		mitmtools.SetSslInsecure(true),
 		mitmtools.SetProxy(ProxyUrl),
 		mitmtools.SetShowLog(true),
-		mitmtools.SetBackend(true), // 后台运行
+		//mitmtools.SetBackend(true), // 后台运行
 		//mitmtools.SetCaRootPath("C:\\Users\\用户目录\\.mitmproxy"),	// windows 示例
-	)
-
-	// 打印请求
-	config.AddHandler(&req.ShowReq{})
-
-	proxy, err := mitmtools.Start(config)
-	glog.DLogger.Debugln("程序已启动...")
-
+	))
 	if err != nil {
-		glog.DLogger.Fatalln(err)
+		log.Fatalln(err)
 	}
 
-	glog.DLogger.Debugln(proxy.GetCertificate())
+	worker.AddHandler(&req.ShowReq{})
+
+	err = worker.Start()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	glog.DLogger.Debugln("程序已启动...")
+
+	glog.DLogger.Debugln(worker.Proxy.GetCertificate())
 
 	for {
 		time.Sleep(5 * time.Second)
 		glog.DLogger.Debugln("程序正在关闭...")
-		proxy.Close()
+		worker.Stop()
 		break
 	}
-	glog.DLogger.Debugln(PortIsAvailable(8866))
 }
