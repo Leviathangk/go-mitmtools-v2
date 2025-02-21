@@ -45,11 +45,17 @@ func NewConfig(opt ...SetFunc) *Config {
 	if config.StreamLargeBodies == 0 {
 		config.StreamLargeBodies = defaultStreamLargeBodies
 	}
-	config.Handler = new(Handler)
-	config.Handler.HandlerIndex = 0
-	config.Handler.Handlers = make(map[int]handler.Addon)
+	config.Handler = NewHandler()
 
 	return config
+}
+
+// NewHandler 新建 Handler
+func NewHandler() *Handler {
+	h := new(Handler)
+	h.HandlerIndex = 0
+	h.Handlers = make(map[int]handler.Addon)
+	return h
 }
 
 // AddHandler 添加配置

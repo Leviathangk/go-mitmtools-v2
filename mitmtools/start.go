@@ -31,9 +31,7 @@ func NewWorker(opts *Config) (*MitmWorker, error) {
 	handler.ShowLog = opts.ShowLog
 	glog.DLogger.ShowCaller = false
 	if opts.Handler == nil {
-		opts.Handler = new(Handler)
-		opts.Handler.HandlerIndex = 0
-		opts.Handler.Handlers = make(map[int]handler.Addon)
+		opts.Handler = NewHandler()
 	}
 	if opts.Addr == "" {
 		opts.Port = defaultPort
