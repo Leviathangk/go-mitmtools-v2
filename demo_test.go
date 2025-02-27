@@ -5,6 +5,8 @@
 package main
 
 import (
+	"github.com/Leviathangk/go-mitmtools-v2/handler"
+	"github.com/Leviathangk/go-mitmtools-v2/handler/resp"
 	"log"
 	"testing"
 	"time"
@@ -33,6 +35,13 @@ func TestDemo(t *testing.T) {
 	}
 
 	worker.AddHandler(&req.ShowReq{})
+	worker.AddHandler(&resp.ReplaceContent{
+		BaseHandler: handler.BaseHandler{},
+		Pattern:     "baidu",
+		FindContent: "百度",
+		ToContent:   "千度",
+		Times:       0,
+	})
 
 	err = worker.Start()
 	if err != nil {

@@ -60,7 +60,8 @@ func NewHandler() *Handler {
 
 // AddHandler 添加配置
 func (handler *Handler) AddHandler(h handler.Addon) int {
-	index := handler.HandlerIndex + 1
+	index := handler.HandlerIndex
+	handler.HandlerIndex += 1
 	handler.Handlers[index] = h
 	return index
 }
