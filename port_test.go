@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"syscall"
 	"testing"
 )
 
@@ -22,6 +23,9 @@ func containsStr(slice []string, value string) bool {
 func killPort(port int) {
 	// 执行 netstat 命令并获取输出
 	cmd := exec.Command("netstat", "-ano")
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		CreationFlags: 0x08000000, // syscall.CREATE_NO_WINDOW
+	}
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
@@ -55,6 +59,9 @@ func killPort(port int) {
 	// kill 所有 pid
 	for _, pid := range pidArr {
 		killCommand := exec.Command("taskkill", "/PID", pid, "/F")
+		killCommand.SysProcAttr = &syscall.SysProcAttr{
+			CreationFlags: 0x08000000, // syscall.CREATE_NO_WINDOW
+		}
 		if err := killCommand.Run(); err != nil {
 			glog.DLogger.Warnf("%s kill 失败\n", pid)
 		} else {
