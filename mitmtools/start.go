@@ -1,10 +1,13 @@
 package mitmtools
 
 import (
+	"bytes"
 	"github.com/Leviathangk/go-glog/glog"
 	"github.com/Leviathangk/go-mitmtools-v2/handler"
 	"github.com/lqqyt2423/go-mitmproxy/proxy"
+	"os/exec"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -59,6 +62,9 @@ func (m *MitmWorker) RemoveHandler(handlerIndex int) {
 
 // Start 启动
 func (m *MitmWorker) Start() error {
+	// kill 所有关联 job
+	m.KillAll()
+
 	// 清空原始 handlers
 	m.Proxy.Addons = make([]proxy.Addon, 0)
 
@@ -129,6 +135,11 @@ func (m *MitmWorker) ReStart() error {
 	return nil
 }
 
+// KillAll 会杀掉所有与当前端口关联的进程，因为 ws 的连接会一直保持，stop 方法只会改变新连接
+func (m *MitmWorker) KillAll() {
+	killPort(m.Config.Port)
+}
+
 // waitStart 等待启动完成
 func waitStart(p *proxy.Proxy, port int) (bool, error) {
 	// 这里启动等待错误
@@ -149,6 +160,61 @@ func waitStart(p *proxy.Proxy, port int) (bool, error) {
 				glog.DLogger.Debugf("端口已启动 %d\n", port)
 				return true, nil
 			}
+		}
+	}
+}
+
+// containsStr 是否包含指定字符串
+func containsStr(slice []string, value string) bool {
+	for _, v := range slice {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}
+
+// killPort 所有和指定端口关联的程序
+func killPort(port int) {
+	// 执行 netstat 命令并获取输出
+	cmd := exec.Command("netstat", "-ano")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		glog.DLogger.Warnf("端口获取失败: %v\n", err)
+		return
+	}
+
+	// 查找所有匹配的PID
+	lines := strings.Split(out.String(), "\n")
+	var pidArr []string
+	portStr := strconv.Itoa(port)
+	for _, line := range lines {
+		if strings.Contains(line, portStr) {
+			cols := strings.Fields(line)
+			if len(cols) != 5 {
+				continue
+			}
+			if !strings.Contains(cols[2], portStr) {
+				continue
+			}
+			if strings.Contains(cols[3], "ESTABLISHED") || strings.Contains(cols[3], "LISTENING") {
+				if containsStr(pidArr, cols[4]) {
+					continue
+				}
+				glog.DLogger.Debugln("找到 pid:", cols[4])
+				pidArr = append(pidArr, cols[4])
+			}
+		}
+	}
+
+	// kill 所有 pid
+	for _, pid := range pidArr {
+		killCommand := exec.Command("taskkill", "/PID", pid, "/F")
+		if err := killCommand.Run(); err != nil {
+			glog.DLogger.Warnf("%s kill 失败\n", pid)
+		} else {
+			glog.DLogger.Infof("%s kill 成功\n", pid)
 		}
 	}
 }
