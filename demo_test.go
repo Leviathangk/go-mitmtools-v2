@@ -5,56 +5,15 @@
 package main
 
 import (
-	"github.com/Leviathangk/go-mitmtools-v2/handler"
-	"github.com/Leviathangk/go-mitmtools-v2/handler/resp"
-	"log"
+	"fmt"
+	"regexp"
 	"testing"
-	"time"
-
-	"github.com/Leviathangk/go-glog/glog"
-	"github.com/Leviathangk/go-mitmtools-v2/handler/req"
-	"github.com/Leviathangk/go-mitmtools-v2/mitmtools"
-)
-
-const (
-	Port     = 8866
-	ProxyUrl = ""
 )
 
 func TestDemo(t *testing.T) {
-	worker, err := mitmtools.NewWorker(mitmtools.NewConfig(
-		mitmtools.SetPort(Port),
-		mitmtools.SetSslInsecure(true),
-		mitmtools.SetProxy(ProxyUrl),
-		mitmtools.SetShowLog(true),
-		mitmtools.SetBackend(true), // 后台运行
-		//mitmtools.SetCaRootPath("C:\\Users\\用户目录\\.mitmproxy"),	// windows 示例
-	))
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	worker.AddHandler(&req.ShowReq{})
-	worker.AddHandler(&resp.ReplaceContent{
-		BaseHandler: handler.BaseHandler{},
-		Pattern:     "baidu",
-		FindContent: "百度",
-		ToContent:   "千度",
-		Times:       0,
-	})
-
-	err = worker.Start()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	glog.DLogger.Debugln("程序已启动...")
-
-	glog.DLogger.Debugln(worker.Proxy.GetCertificate())
-
-	for {
-		time.Sleep(5 * time.Second)
-		glog.DLogger.Debugln("程序正在关闭...")
-		worker.Stop()
-		break
-	}
+	content := []byte("ddl[j6(400)](null,n):k[l][j6(400)]")
+	p := regexp.MustCompile("l\\[\\w+\\(\\d+\\)\\]\\(null,n\\):k\\[l\\]\\[\\w+\\(\\d+\\)\\]")
+	t1 := p.ReplaceAll(content, []byte("2"))
+	fmt.Println(t1)
+	fmt.Println(string(t1))
 }
