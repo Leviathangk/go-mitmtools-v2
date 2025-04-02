@@ -61,3 +61,50 @@ func (r *ReplaceContent) Check() error {
 
 	return nil
 }
+
+// CustomizeReplaceFunc 自定义的替换函数
+type CustomizeReplaceFunc func(body []byte) []byte
+
+// ReplaceContentCustomize 自定义如何处理响应体
+type ReplaceContentCustomize struct {
+	handler.BaseHandler
+	Pattern     string               // url 匹配规则
+	ReplaceFunc CustomizeReplaceFunc // 自定义替换函数
+	Times       int                  // 替换次数（0 代表无限）
+	IsNoCookie  bool                 // 只有当没有 cookie 的时候才替换
+	timesRecord int                  // 记录当前次数
+}
+
+func (r *ReplaceContentCustomize) Response(f *proxy.Flow) {
+
+	// 替换响应
+	if handler.IsMatch(r.Pattern, f.Request.URL.String()) {
+		if r.IsNoCookie && handler.CookieExists(f) {
+			glog.DLogger.Warnf("当前存在 cookie 不进行替换：%s\n", f.Request.Header.Get("cookie"))
+			return
+		}
+
+		if r.Times != 0 {
+			if r.timesRecord >= r.Times {
+				glog.DLogger.Warnf("当前替换已达到上限：%d\n", r.Times)
+				return
+			}
+			r.timesRecord += 1
+			glog.DLogger.Debugf("当前替换次数：%d-%d\n", r.Times, r.timesRecord)
+		}
+
+		f.Response.Body = r.Func(f.Response.Body)
+
+		if handler.ShowLog || r.ShowLog {
+			glog.DLogger.Debugf("ReplaceContent 已修改响应结果：%s\n", f.Request.URL)
+		}
+	}
+}
+
+// Check 检查是否符合启动要求
+func (r *ReplaceContentCustomize) Check() error {
+	if r.Func == nil {
+		return fmt.Errorf("未定义修改 body 函数！")
+	}
+	return nil
+}
