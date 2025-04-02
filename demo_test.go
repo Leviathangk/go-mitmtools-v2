@@ -11,9 +11,10 @@ import (
 )
 
 func TestDemo(t *testing.T) {
-	content := []byte("ddl[j6(400)](null,n):k[l][j6(400)]")
-	p := regexp.MustCompile("l\\[\\w+\\(\\d+\\)\\]\\(null,n\\):k\\[l\\]\\[\\w+\\(\\d+\\)\\]")
-	t1 := p.ReplaceAll(content, []byte("2"))
-	fmt.Println(t1)
-	fmt.Println(string(t1))
+	sign1 := "d"
+	sign2 := "d"
+	toContent := fmt.Sprintf("console.log(`%s：$${%s} %s：$${%s}`),console.log(`%s：$${%s} %s：$${%s}`)", sign1, sign1, sign2, sign2, sign1, sign1, sign2, sign2)
+	p := regexp.MustCompile("function")
+	r := p.ReplaceAll([]byte("function工"), []byte(toContent))
+	fmt.Println(string(r))
 }

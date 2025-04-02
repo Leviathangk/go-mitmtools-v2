@@ -93,7 +93,7 @@ func (r *ReplaceContentCustomize) Response(f *proxy.Flow) {
 			glog.DLogger.Debugf("当前替换次数：%d-%d\n", r.Times, r.timesRecord)
 		}
 
-		f.Response.Body = r.Func(f.Response.Body)
+		f.Response.Body = r.ReplaceFunc(f.Response.Body)
 
 		if handler.ShowLog || r.ShowLog {
 			glog.DLogger.Debugf("ReplaceContent 已修改响应结果：%s\n", f.Request.URL)
@@ -103,7 +103,7 @@ func (r *ReplaceContentCustomize) Response(f *proxy.Flow) {
 
 // Check 检查是否符合启动要求
 func (r *ReplaceContentCustomize) Check() error {
-	if r.Func == nil {
+	if r.ReplaceFunc == nil {
 		return fmt.Errorf("未定义修改 body 函数！")
 	}
 	return nil

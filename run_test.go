@@ -70,7 +70,7 @@ func TestRun(t *testing.T) {
 			glog.DLogger.Infof("成功匹配 sign1：%s sign2：%s\n", sign1, sign2)
 
 			findContent := regexp.MustCompile("l\\[\\w+\\(\\d+\\)\\]\\(null,n\\):k\\[l\\]\\[\\w+\\(\\d+\\)\\]\\(k,n\\)")
-			toContent := fmt.Sprintf("(xxx=l[\"apply\"](null, n),console.log(`%s：${%s} %s：${%s}`),console.log(\"直接执行 \", l,n,\" 结果 \",xxx),xxx) : (xxx=k[l][\"apply\"](k, n),console.log(`%s：${%s} %s：${%s}`),console.log(\"正在执行函数 \",k,l,n,\" 结果 \",xxx),xxx)", sign1, sign1, sign2, sign2, sign1, sign1, sign2, sign2)
+			toContent := fmt.Sprintf("(xxx=l[\"apply\"](null, n),console.log(`%s：$${%s} %s：$${%s}`),console.log(\"直接执行 \", l,n,\" 结果 \",xxx),xxx) : (xxx=k[l][\"apply\"](k, n),console.log(`%s：$${%s} %s：$${%s}`),console.log(\"正在执行函数 \",k,l,n,\" 结果 \",xxx),xxx)", sign1, sign1, sign2, sign2, sign1, sign1, sign2, sign2)
 			return findContent.ReplaceAll(body, []byte(toContent))
 		},
 	})
